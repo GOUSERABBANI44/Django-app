@@ -1,0 +1,26 @@
+pipeline {
+    stages {
+        stage ('Clone Repository') {
+            steps {
+                script {
+                    // Clone the Git repository that contains your Dockerfile
+                    git branch: 'main', url: 'https://github.com/GOUSERABBANI44/event-calendar.git'
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image from the Dockerfile
+                    docker.build("event-calendar-app:latest", ".")
+                }
+            }
+        }
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // Run the Docker container
+                    docker.image("event-calendar-app:latest").run('-p 8000:8000')
+                }
+            }
+        }
