@@ -1,4 +1,5 @@
 pipeline {
+    agent any // This tells Jenkins to run on any available agent
     stages {
         stage('Clone Repository') {
             steps {
@@ -7,36 +8,31 @@ pipeline {
         }
         stage('Setup Environment') {
             steps {
-                dir('event-calendar') {
-                    sh '''
-                        sudo apt update
-                        sudo apt install -y python3.10-venv
+                
+                sh '''
+                        sudo apt-get update
+                        sudo apt-get install -y python3.10-venv
                         python3 -m venv venv
-                        source venv/bin/activate
+                        . venv/bin/activate
                         pip install -r requirements.txt
                     '''
-                }
             }
         }
         stage('Database Migrations') {
             steps {
-                dir('event-calendar') {
-                    sh '''
-                        source venv/bin/activate
+                sh '''
+                        . venv/bin/activate
                         python3 manage.py makemigrations
                         python3 manage.py migrate
                     '''
-                }
             }
         }
         stage('Run Server') {
             steps {
-                dir('event-calendar') {
-                    sh '''
-                        source venv/bin/activate
-                        python3 manage.py runserver 0.0.0.0:8000
+                sh '''
+                        . venv/bin/activate
+                        nohup python3 manage.py runserver 0.0.0.0:8000 &
                     '''
-                }
             }
         }
     }
